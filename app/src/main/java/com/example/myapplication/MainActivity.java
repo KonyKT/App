@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         try {
             out.writeObject("close");
             out.close();
-            // działaj kurwa
+            // działaj kurw
             in.close();
             socket.close();
         } catch (IOException ex) {
