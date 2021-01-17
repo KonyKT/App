@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     TextView text;
     EditText pAdress, pPort;
     Button buttonConnect;
+    Button buttonMrug;
     TextView num1View;
     TextView num2View;
 
@@ -69,8 +70,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         pAdress = (EditText) findViewById(R.id.ip_adress);
         pPort = (EditText) findViewById(R.id.port_adress);
         buttonConnect = (Button) findViewById(R.id.connectButton);
+        buttonMrug = (Button) findViewById(R.id.buttonMrug);
         pAdress.setText("192.168.0.9");
         pPort.setText("5560");
+        buttonMrug.setText("CLOSE EYES");
 
         buttonConnect.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -95,7 +98,45 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             }
         });
 
+        buttonMrug.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View v) {
+                if (buttonMrug.getText().toString().equalsIgnoreCase("CLOSE EYES")) {
+                    try {
+                        if(socket != null) {
+                            try {
+                                String strng = "4,"+"000,"+"000" ;
+                                dataOutputStream.writeUTF(strng);
+                                dataOutputStream.flush(); // send the message
+                                Thread.sleep(40);
+                                buttonMrug.setText("OPEN EYES");
+                            } catch (IOException | InterruptedException e) {
+
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        text.setText("Wyjebalo");
+                    }
+                } else {
+                    if(socket != null) {
+                        try {
+                            String strng = "5,"+"000,"+"000" ;
+                            dataOutputStream.writeUTF(strng);
+                            dataOutputStream.flush(); // send the message
+                            Thread.sleep(40);
+                            buttonMrug.setText("CLOSE EYES");
+                        } catch (IOException | InterruptedException e) {
+
+                        }
+                    }
+                }
+            }
+        });
+
     }
+
+
 
     @SuppressLint("SetTextI18n")
     private void closeConnection() {
@@ -187,7 +228,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         String strng = "1," + xPercent + "," + yPercent;
                         dataOutputStream.writeUTF(strng);
                         dataOutputStream.flush(); // send the message
-                    } catch (IOException e) {
+                        Thread.sleep(40);
+                    } catch (IOException | InterruptedException e) {
 
                     }
                 }

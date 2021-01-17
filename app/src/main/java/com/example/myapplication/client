@@ -1,6 +1,9 @@
 import socket
 import os
+import serial
+import time
 
+ser = serial.Serial('/dev/ttyUSB1',9600)
 cmd = 'sudo fuser -k 5560/tcp'
 host = ''
 port = 5560
@@ -18,6 +21,9 @@ def setupServer():
         print(msg)
     print("Socket bind comlete.")
     return s
+
+def valmap(value, istart, istop, ostart, ostop):
+  return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
 
 def setupConnection():
     s.listen(3) # Allows one connection at a time.
@@ -55,7 +61,15 @@ def dataTransfer(conn):
         if command == 'GET':
             print(tab[1])
         elif command == '1':
-            print("x: "+tab[1]+" y: "+tab[2])
+            if (len(tab) == 3):
+                testx = float(tab[1])
+                testy = float(tab[2])*-1
+                xval = str(int(valmap(testx,-1,1,220,440)))
+                yval = str(int(valmap(testy,-1,1,320,470)))
+                send = "1"+xval+""+yval
+                ser.write(send.encode())
+                print("x: "+xval+" y: "+yval)
+
         elif command == '2':
             print("Our client has left us :(")
             break
@@ -63,6 +77,14 @@ def dataTransfer(conn):
             print("Our server is shutting down.")
             s.close()
             break
+        elif command == '4':
+            print("Closing eyes")
+            send = "4000000"
+            ser.write(send.encode())
+        elif command == '5':
+            print("Opening eyes")
+            send = "5000000"
+            ser.write(send.encode())
         else:
             reply = 'Unknown Command'
         # Send the reply back to the client
