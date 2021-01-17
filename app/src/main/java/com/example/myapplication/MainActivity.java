@@ -2,6 +2,14 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+import android.annotation.TargetApi;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +38,7 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener {
 
+    WebView mWebview ;
     private EditText ip, port;
     private Button connect;
     private ObjectInputStream in;
@@ -50,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     TextView num1View;
     TextView num2View;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +83,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         buttonMrug = (Button) findViewById(R.id.buttonMrug);
         pAdress.setText("192.168.0.9");
         pPort.setText("5560");
-        buttonMrug.setText("CLOSE EYES");
+        buttonMrug.setText("OPEN EYES");
+        mWebview  = new WebView(this);
+
+        mWebview = (WebView)findViewById(R.id.webview);
+        mWebview.getSettings().setJavaScriptEnabled(true);
 
         buttonConnect.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -87,11 +101,17 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         portnum = Integer.parseInt(pPort.getText().toString());
                         Client client = new Client(ipaddress, portnum);
                         client.start();
-                    } catch (NumberFormatException e) {
+                        Thread.sleep(1000);
+                        if(socket != null) {
+                            mWebview.loadUrl("http://192.168.0.9:5000");
+                        }
+
+                    } catch (NumberFormatException | InterruptedException e) {
                         text.setText("Wyjebalo");
                     }
                 } else {
                     buttonConnect.setText("Connect");
+                    mWebview.loadUrl("about:blank");
                     //changeSwitchesSatte(false);
                     closeConnection();
                 }
@@ -192,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 dataOutputStream.writeUTF("0,Hello from the other side!");
                 dataOutputStream.flush(); // send the message
                 buttonConnect.setText("Disconnect");
-
                 //out = new ObjectOutputStream(socket.getOutputStream());
                 //out.flush();
                 //out.writeObject("opened");
